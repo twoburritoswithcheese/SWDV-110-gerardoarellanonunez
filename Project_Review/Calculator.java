@@ -1,8 +1,12 @@
+package Project_Review;
+
+import java.io.*;
 import java.util.Scanner;
 import java.util.ArrayList;
 
 public class Calculator {
     public static void main(String[] args) {
+        String file = "transactions.txt";
         Scanner scanner = new Scanner(System.in);
 
         String prompt1 = "\nEnter a digit for 'x': ";
@@ -11,26 +15,14 @@ public class Calculator {
         float x = getX(prompt1, scanner);
         float y = getY(prompt2, scanner);
 
-        String add = String.format("%.1f + %.1f = " + (x + y), x, y);
-        String subtract = String.format("%.1f - %.1f = " + (x - y), x, y);
-        String multiply = String.format("%.1f * %.1f = " + (x * y), x, y);
-        String divide = String.format("%.1f / %.1f = " + (x / y), x, y);
+        // Print values to the console.
+        printResults(x,y);
+        // Write transactions to a file.
+        writeTransactions(x, y, file);
 
-        ArrayList<String> transactions = new ArrayList<>();
-
-        transactions.add(add);
-        transactions.add(subtract);
-        transactions.add(multiply);
-        transactions.add(divide);
-
-        System.out.println("-------------------------------");
-        for ( String transaction : transactions) {
-            System.out.println(transaction);
-        } 
-        System.out.println("-------------------------------");
         scanner.close();
-
     }
+
 
     public static float getX(String prompt1, Scanner scanner) {
         float x;
@@ -58,6 +50,47 @@ public class Calculator {
                 continue;
             }
             return y;
+        }
+    }
+
+
+    public static void printResults(float x, float y) {
+        ArrayList<Float> values = new ArrayList<>();
+
+        values.add(x+y);
+        values.add(x-y);
+        values.add(x*y);
+        values.add(x/y);
+
+        for (float value : values) {
+            System.out.printf("%.2f\n", value);
+        }
+    }
+
+
+    public static void writeTransactions(float x, float y, String file) {
+        ArrayList<String> transactions = new ArrayList<>();
+
+        String stringAdd = String.format("%.2f + %.2f = " + (x + y), x, y);
+        String stringSubtract = String.format("%.2f - %.2f = " + (x - y), x, y);
+        String stringMultiply = String.format("%.2f * %.2f = " + (x * y), x, y);
+        String stringDivide = String.format("%.2f / %.2f = " + (x / y), x, y);
+
+        transactions.add(stringAdd);
+        transactions.add(stringSubtract);
+        transactions.add(stringMultiply);
+        transactions.add(stringDivide);
+
+        try (PrintWriter out = new PrintWriter(
+                         new BufferedWriter(
+                         new FileWriter(file)))) {
+                            
+            for (String transaction : transactions) {
+                out.println(transaction);
+            }
+
+        } catch (IOException e) {
+            System.out.println(e);
         }
     }
 }
