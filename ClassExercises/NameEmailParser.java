@@ -1,4 +1,4 @@
-package NameEmailParser;
+package ClassExercises;
 
 import java.util.Scanner;
 

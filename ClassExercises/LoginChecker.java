@@ -1,4 +1,4 @@
-package LoginChecker;
+package ClassExercises;
 
 import java.util.ArrayList;
 import java.util.Scanner;
