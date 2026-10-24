@@ -13,14 +13,14 @@ private ContactParser() { }
 * "" -> ""
 */
 public static String titleCase(String word) {
-// TODO Part 1 – hint: StringBuilder + setCharAt
     if (word == null || word.isEmpty()) {
         return "";
     }
-
+    // Grab the first ch in a string and change it to upper case
     StringBuilder text = new StringBuilder(word.toLowerCase());
     text.setCharAt(0, Character.toUpperCase(text.charAt(0)));
 
+    // Check if name has a hyphen and change the letter after the hyphen
     for (int i = 1; i < text.length(); i++) {
         if (text.charAt(i - 1) == '-') {
             text.setCharAt(i, Character.toUpperCase(text.charAt(i)));
@@ -41,12 +41,13 @@ public static String titleCase(String word) {
 * "maria garcia-lopez" -> "Maria Garcia-Lopez"
 */
 public static String normalizeName(String raw) {
-// TODO Part 1 – hint: indexOf(','), substring, split("\\s+"), String.join
+
     String name = raw.trim().replaceAll("\\s+", " ");
   
     String first;
     String last;
 
+    // Check if name is last name first followed by first name and separated by a ','
     if (name.contains(",")) {
         int index = name.indexOf(",");
         first = name.substring(index + 1).toLowerCase().trim();
@@ -55,9 +56,11 @@ public static String normalizeName(String raw) {
         name = first + " " + last;            
     } 
 
+    
     String[] names = name.split(" ");
     StringBuilder titleCaseName = new StringBuilder();
 
+    // change to upper case the first letter of name and add it to string.
     for (String n : names) {
         titleCaseName.append(titleCase(n) + " ");
     }
@@ -73,7 +76,7 @@ public static String normalizeName(String raw) {
 * character, does not end with '.', and never has two dots in a row.
 */
 public static boolean isValidEmail(String email) {
-// TODO Part 2 – no regular expressions; use indexOf / lastIndexOf / substring
+
     if (email == null || email.isEmpty()) {
         return false;
     }
@@ -86,12 +89,13 @@ public static boolean isValidEmail(String email) {
 
     int at = validateEmail.indexOf("@");
     
+    // check if '@' exist and there is no duplicate
     if (at <= 0 || at != validateEmail.lastIndexOf("@")) {
         return false;
     }
 
+    // check if after '@' is empty 
     String afterAt = validateEmail.substring(at + 1);
-
     if (afterAt.isEmpty() || afterAt == null) {
         return false;
     }
@@ -113,7 +117,6 @@ public static boolean isValidEmail(String email) {
 
 /** Trims and lowercases an email: " JSmith@Example.COM " -> "jsmith@example.com" */
 public static String normalizeEmail(String email) {
-// TODO Part 2
     return email.trim().toLowerCase();
 }
 
@@ -123,16 +126,17 @@ public static String normalizeEmail(String email) {
 * If there are fewer than 2 characters before the '@' (or no '@'), return the email unchanged.
 */
 public static String maskEmail(String email) {
-// TODO Part 2 – hint: "*".repeat(n)
 
     int at = email.indexOf("@");
 
+    // check if email there are fewer than 2 ch before '@'
     if (at < 2 ) {
         System.out.println("email is short");
     }
 
+    // mask email - repeat * using N of index and subtracting 1
     String maskedEmail = email.substring(0, 1)  
-                        + "*".repeat(at -1) 
+                        + "*".repeat(at -1) // repeat n - 1 
                         + email.substring(at);
     return maskedEmail;
 }
@@ -142,13 +146,13 @@ public static String maskEmail(String email) {
 * Exactly 10 digits -> "(208) 555-0199". Anything else -> "INVALID".
 */
 public static String formatPhone(String raw) {
-// TODO Part 3 – hint: loop over toCharArray(), Character.isDigit, StringBuilder
     if (raw == null) {
         return "INVALID";
     }
 
     StringBuilder digits = new StringBuilder();
 
+    // check if each ch in phone is a digit, if valid add to string
     for (char ch : raw.toCharArray()) {
         if (Character.isDigit(ch)) {
             digits.append(ch);
@@ -163,6 +167,7 @@ public static String formatPhone(String raw) {
         return "INVALID";
     }
 
+    // break the String phone number into parts
     String areaCode = digits.substring(0, 3);
     String firstSet = digits.substring(3, 6);
     String secondSet = digits.substring(6, 10);
@@ -181,7 +186,6 @@ public static String formatPhone(String raw) {
 * A one-word name uses just that word: "Bob" -> "bob"
 */
 public static String makeUsername(String fullName) {
-// TODO Part 4
     if (fullName == null || fullName.isBlank()) {
         return "";
     }
@@ -191,14 +195,17 @@ public static String makeUsername(String fullName) {
     String last = name[name.length - 1];
 
     String combined;
+    // combine first letter of name with lastname
     if (name.length == 1) {
         combined = first;
     } else {
         combined = first.substring(0, 1) + last;
     }
 
+    // remove any symbols
     String username = combined.toLowerCase().replaceAll("[^a-z]", "");
 
+    // trim username to length of 8 characters
     if (username.length() > 8 ) {
         return username.substring(0, 8);
     } 
@@ -214,18 +221,18 @@ public static String makeUsername(String fullName) {
 * the report flags those.)
 */
 public static Contact parseLine(String line) {
-// TODO Part 4 – careful: '|' means something special to split(), so escape it: "\\|"
-
     if (line == null) {
         throw new IllegalArgumentException("Line cannot be empty");
     }
 
     String[] fields = line.split("\\|");
 
+    // make sure there are 3 fields  in line
     if (fields.length != 3) {
         throw new IllegalArgumentException("Expected exactly 3 fields");
     }
 
+    // grab each field from line
     String name = normalizeName(fields[0]).trim();
     String email = normalizeEmail(fields[1]).trim();
     String phone = formatPhone(fields[2]).trim();

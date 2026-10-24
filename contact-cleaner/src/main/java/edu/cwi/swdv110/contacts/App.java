@@ -10,40 +10,33 @@ import java.util.Scanner;
 public class App {
 
     public static void main(String[] args) throws IOException {
-        // Reading files is covered later in Murach – this one line gives you every line of the file.
         List<String> lines = Files.readAllLines(Path.of("contacts.txt"));
         List<Contact> contacts = new ArrayList<>();
 
-        // TODO Part 5a: loop over lines
-        // - skip blank lines and lines that start with '#'
-        // - parseLine(...) each remaining line and add it to contacts
-        // - catch IllegalArgumentException and print "Skipped line N: <message>"
-        // (N is the line number in the file, starting at 1)
-
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
-
+            
+            
+            // - skip blank lines and lines that start with '#'
             if (line.isBlank() || line.trim().startsWith("#")) {
                 continue;
             }
-
+            
+            // - parseLine(...) each remaining line and add it to contacts
+            // - catch IllegalArgumentException and print "Skipped line N: <message>"
             try {
                 contacts.add(ContactParser.parseLine(line));
             } catch (IllegalArgumentException e) {
                 System.out.printf("Skipped line %d: %s\n", i+1, e.getMessage());
             }    
         }
-        // TODO Part 5b: print ContactReport.buildReport(contacts)
+        
+        // Print report
         System.out.println(ContactReport.buildReport(contacts));
 
-
-        // TODO Part 5c: search loop
-        // - prompt "Search (or 'quit'): "
-        // - 'quit' (any capitalization) ends the program
-        // - otherwise print every contact whose name contains the term, ignoring case,
-        // showing the name and the MASKED email, then "N match(es)"
         Scanner sc = new Scanner(System.in);
 
+        // run app unless user 'quit'
         while (true) {
             System.out.print("Search (or 'quit'): ");
             String input = sc.nextLine().toLowerCase();
@@ -54,12 +47,14 @@ public class App {
 
             int matches = 0;
 
+            // search for user input
             for (Contact contact : contacts) {
                 if (contact.name().toLowerCase().contains(input)) {
                     System.out.printf("%s | %s\n", contact.name(), ContactParser.maskEmail(contact.email()));
                     matches++;
                 }
             }
+            // display the N times user input was found 
             System.out.printf("%d match(es)\n", matches);
         }
         sc.close();

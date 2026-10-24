@@ -19,9 +19,9 @@ private ContactReport() { }
 * - "Total contacts: N | Invalid emails: N | Invalid phones: N"
 */
 public static String buildReport(List<Contact> contacts) {
-// TODO Part 5 – build it with a StringBuilder and String.format(ROW, ...)
     StringBuilder report = new StringBuilder();
 
+    // Print header with line across
     report.append(String.format(ROW, "NAME","EMAIL","PHONE","USERNAME"));
     report.append("-".repeat(78) + "\n");
 
@@ -31,6 +31,7 @@ public static String buildReport(List<Contact> contacts) {
     for (Contact contact : contacts) {
         String email;
 
+        // check that email is valid otherwise add '!!' in front of e-mail
         if(!ContactParser.isValidEmail(contact.email())) {
             invalidEmail++;
             email = "!!" + " " + contact.email();    
@@ -38,12 +39,14 @@ public static String buildReport(List<Contact> contacts) {
             email = contact.email();
         }
 
+        // check if phone number is 'INVALID'
         if ("INVALID".equals(contact.phone())) {
             invalidPhone++;
         }
 
         String username = ContactParser.makeUsername(contact.name());
 
+        // create new line with correct format
         report.append(String.format(
                 ROW,
                 contact.name(),
@@ -51,7 +54,7 @@ public static String buildReport(List<Contact> contacts) {
                 contact.phone(),
                 username));
     }
-
+    
     report.append("-".repeat(78) + "\n");
     report.append(String.format("Total contacts: %d | Invalid emails: %d | Invalid phones: %d",
         contacts.size(), invalidEmail, invalidPhone
