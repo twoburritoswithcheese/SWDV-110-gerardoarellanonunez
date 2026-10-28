@@ -10,24 +10,25 @@ public class BirthdayExplorer {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         LocalDate currentDate = LocalDate.now();
-    
+        int currentYear = currentDate.getYear();
+        
         System.out.println("Welcome to Birthday Explorer.");
-
+        
         LocalDate dateOfBirth = getDateOfBirth(sc);
-
+        
         // Get data from birthday
         DayOfWeek dayOfWeek = dateOfBirth.getDayOfWeek();
         int dayOfYear = dateOfBirth.getDayOfYear();
         boolean isLeap = dateOfBirth.isLeapYear();
-        LocalDate thisYearBirthday = dateOfBirth.withYear(2026);
-
+        LocalDate thisYearBirthday = dateOfBirth.withYear(currentYear);
+        
         // Get day of week for next 5 years
         ArrayList<DayOfWeek> daysOfWeeks = new ArrayList<>();
-        int year = 2027;
+
         for ( int i = 0; i < 5; i++) {
-            LocalDate placeHolder = dateOfBirth.withYear(year);
+            LocalDate placeHolder = dateOfBirth.withYear(currentYear + 1);
             daysOfWeeks.add(placeHolder.getDayOfWeek());
-            year++;
+            currentYear++;
         }
 
         // Print out results
@@ -48,11 +49,13 @@ public class BirthdayExplorer {
 
         // Print days birthday falls on for the next 5 years
         System.out.println("\nBirthday days for the next 5 years");
-        int years = 2027;
 
+        int nextFiveYears = currentDate.getYear();
+        // increase current year by one before printing next 5 years
+        nextFiveYears++;
         for (DayOfWeek date : daysOfWeeks) {
-            System.out.println( years + ": " +date);
-            years++;
+            System.out.println( nextFiveYears + ": " + date);
+            nextFiveYears++;
         }
 
         // Close scanner
