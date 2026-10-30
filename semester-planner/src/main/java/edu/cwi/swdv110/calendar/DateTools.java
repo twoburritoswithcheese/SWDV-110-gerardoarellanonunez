@@ -93,10 +93,12 @@ public static LocalDate parseFlexible(String text) {
     int badFormat = 0;
     int match = 0;
 
+    String trimmedText = text.trim();
+
     // check each format
     for (int i = 0; i < FORMAT_LIST.size(); i++) {
         try {
-            LocalDate.parse(text, FORMAT_LIST.get(i));
+            LocalDate.parse(trimmedText, FORMAT_LIST.get(i));
             match = i;
             break;
         } catch (DateTimeParseException dtpe) {
@@ -107,9 +109,9 @@ public static LocalDate parseFlexible(String text) {
 
     // check if there is no match
     if (badFormat == 3) {
-        throw new IllegalArgumentException("Unrecognized date: " + text);
+        throw new IllegalArgumentException("Unrecognized date: " + trimmedText);
     } else {
-        return LocalDate.parse(text, FORMAT_LIST.get(match));
+        return LocalDate.parse(trimmedText, FORMAT_LIST.get(match));
     }
 }
 
@@ -161,24 +163,14 @@ public static int latePenaltyPercent(LocalDateTime due, LocalDateTime submitted)
         return 0;
     } 
 
-    long twentyFourHours = 1440;
+    long penaltyFee = ((minutesLate + 1439) / 1440) * 10;
 
-    long days = minutesLate / twentyFourHours;
-
-    // check if its more than 5 days late; max fee 50
-    if (days >= 5) {
+    // max fee 50
+    if (penaltyFee > 50) {
         return 50;
     }
-    
-    // Calculate fee for each 24 hour part
-    long lateFee = days * 10;
-    long lateMinutes = lateFee % 10;
 
-    if (lateMinutes == 0) {
-        return (int) lateFee;
-    } else {
-        return ((int)lateFee + 10);
-    }
+    return (int) penaltyFee;
 } 
 
 

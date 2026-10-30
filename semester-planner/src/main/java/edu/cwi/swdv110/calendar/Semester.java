@@ -69,11 +69,8 @@ public void addBreak(LocalDate first, LocalDate last) {
         throw new IllegalArgumentException("Break end cannot be before start");
     }
 
-    LocalDate date = first;
-
-    while (!date.isAfter(last)) {
+    for (LocalDate date = first; !date.isAfter(last); date = date.plusDays(1)) {
         daysOff.add(date);
-        date.plusDays(1);
     }
 }
 
@@ -81,15 +78,15 @@ public void addBreak(LocalDate first, LocalDate last) {
 /** Every date from start to end (inclusive) that is a meeting day and not a day off. */
 public List<LocalDate> meetingDates() {
     List<LocalDate> meetings = new ArrayList<>();
-    LocalDate date = start;
 
-    // add meeting day and exclude days off
-    while(!date.isAfter(end)) {
-        if (meetingDays.contains(date.getDayOfWeek()) && !daysOff.contains(date)) {
+    for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+
+        if (meetingDays.contains(date.getDayOfWeek())
+                && !daysOff.contains(date)) {
             meetings.add(date);
         }
-        date = date.plusDays(1);
     }
+
     return meetings;
 }
 
@@ -124,7 +121,7 @@ public LocalDate nextMeeting(LocalDate from) {
     List<LocalDate> meetingDates = meetingDates();
 
     for (LocalDate meeting : meetingDates) {
-        if (meeting == from || meeting.isAfter(from)) {
+        if (!meeting.isBefore(from)) {
             return meeting;
         }
     }
@@ -141,12 +138,10 @@ public Period length() {
 
 /** Days from `from` until the end date; 0 if the semester is already over. */
 public long daysLeft(LocalDate from) {
-    long days = ChronoUnit.DAYS.between(from, end);
-
-    if( days == 0) {
+    if (!from.isBefore(end)) {
         return 0;
-    } 
-    
-    return days;
+    }
+
+    return ChronoUnit.DAYS.between(from, end);
 }
 }
