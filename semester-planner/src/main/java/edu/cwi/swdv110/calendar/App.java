@@ -22,13 +22,11 @@ public class App {
 
     public static void main(String[] args) {
         // Example semester – these dates are for practice, not the official CWI calendar.
-        Semester sem = new Semester("SWDV-110 – Spring 2027",
-        LocalDate.of(2027, 1, 11), LocalDate.of(2027, 5, 7),
-        Set.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY),
-        LocalTime.of(18, 0), LocalTime.of(20, 30));
-        sem.addHoliday(DateTools.nthWeekday(2027, Month.JANUARY, 3, DayOfWeek.MONDAY)); // MLK Day
-        sem.addHoliday(DateTools.nthWeekday(2027, Month.FEBRUARY, 3, DayOfWeek.MONDAY)); // Presidents' Day
-        sem.addBreak(LocalDate.of(2027, 3, 22), LocalDate.of(2027, 3, 26)); // Spring break
+        Semester sem = new Semester("SWDV-110 - Fall 2026",
+        LocalDate.of(2026, 10, 12), LocalDate.of(2026, 12, 12),
+        Set.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY),
+        LocalTime.of(13, 0), LocalTime.of(16, 35));
+        sem.addBreak(LocalDate.of(2026, 11, 22), LocalDate.of(2026, 11, 28)); // Thanksgiving break
 
 
         // print the name, a line of '=' the same length, then every meeting:
@@ -124,7 +122,7 @@ public class App {
 
                     System.out.println("Days until the semester ends: " + sem.daysLeft(requested));
 
-                    LocalDate due = DateTools.addSchoolDays(next, 5, sem.getDaysOff());
+                    LocalDate due = DateTools.addSchoolDays(next, 4, sem.getDaysOff());
 
                     System.out.println("A lab assigned that day is due " + DateTools.formatShort(due));
 
