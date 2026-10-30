@@ -34,6 +34,8 @@ private final Set<LocalDate> daysOff = new TreeSet<>();
 public Semester(String name, LocalDate start, LocalDate end, Set<DayOfWeek> meetingDays,
 LocalTime classStart, LocalTime classEnd) {
 // TODO validate, then assign the fields
+
+
 this.name = name;
 this.start = start;
 this.end = end;
