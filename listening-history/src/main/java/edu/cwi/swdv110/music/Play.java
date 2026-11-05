@@ -14,7 +14,6 @@ public record Play(String user, String song, String artist, String genre, LocalD
         String[] fields = csvLine.split(",");
 
         // check number of fields
-        int size = 6;
         if (fields.length < 6) {
             throw new IllegalArgumentException("Wrong number of fields");
         }

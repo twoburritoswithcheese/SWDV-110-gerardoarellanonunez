@@ -20,20 +20,14 @@ public final class PlayCleaner {
         // Uppercase first letter of string
         textString.setCharAt(0, Character.toUpperCase(textString.charAt(0)));
 
-        // check if string contains hyphen '-'
-        if (text.contains(String.valueOf('-'))) {
+        // check if string contains hyphen or a space in between chars
+        if (text.contains(String.valueOf('-')) || text.contains(String.valueOf(' '))) {
             for (int i = 1; i < textString.length(); i++) {
-                if (textString.charAt(i-1) == '-' || textString.charAt(i) == ' ') {
+                if (textString.charAt(i-1) == '-' || textString.charAt(i-1) == ' ') {
                     textString.setCharAt( 
                         i, Character.toUpperCase(textString.charAt(i)));
                 }
             }
-        } else if (text.contains(String.valueOf(" "))) {
-            int index = textString.indexOf(" ");
-
-            textString.setCharAt(index + 1, Character.toUpperCase(
-                    textString.charAt(index + 1)
-            ));
         } 
         
         return textString.toString();
