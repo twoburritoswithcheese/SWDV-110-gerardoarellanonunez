@@ -10,8 +10,33 @@ public final class PlayCleaner {
 
     /** "  hip-HOP " -> "Hip-Hop",  "ELECTRONIC" -> "Electronic"  (capitalize after '-' and ' ') */
     public static String titleCase(String text) {
-        // TODO Part 1 – you wrote one of these in Week 1!
-        throw new UnsupportedOperationException("TODO");
+        // check if string is empty
+        if (text == null || text == "") {
+            return "";
+        }
+
+        StringBuilder textString = new StringBuilder(text.toLowerCase().trim());
+
+        // Uppercase first letter of string
+        textString.setCharAt(0, Character.toUpperCase(textString.charAt(0)));
+
+        // check if string contains hyphen '-'
+        if (text.contains(String.valueOf('-'))) {
+            for (int i = 1; i < textString.length(); i++) {
+                if (textString.charAt(i-1) == '-' || textString.charAt(i) == ' ') {
+                    textString.setCharAt( 
+                        i, Character.toUpperCase(textString.charAt(i)));
+                }
+            }
+        } else if (text.contains(String.valueOf(" "))) {
+            int index = textString.indexOf(" ");
+
+            textString.setCharAt(index + 1, Character.toUpperCase(
+                    textString.charAt(index + 1)
+            ));
+        } 
+        
+        return textString.toString();
     }
 
     /**
@@ -22,7 +47,21 @@ public final class PlayCleaner {
      * Returns how many plays were removed.
      */
     public static int clean(List<Play> plays) {
-        // TODO Part 1
-        throw new UnsupportedOperationException("TODO");
+        // check size before removing anything
+        int playsSize = plays.size();
+
+        // remove plays with 0 seconds or blank song
+        plays.removeIf(p -> p.seconds() <= 0 || p.song().isBlank());
+
+        UnaryOperator<Play> op = p -> new Play(p.user().toLowerCase(),
+                p.song(),
+                p.artist(),
+                titleCase(p.genre()),
+                p.date(),
+                p.seconds());
+        
+        plays.replaceAll(op);
+
+        return playsSize - plays.size();
     }
 }

@@ -11,7 +11,23 @@ public record Play(String user, String song, String artist, String genre, LocalD
      * (An empty song title is allowed here – PlayCleaner removes it later.)
      */
     public static Play parse(String csvLine) {
-        // TODO Part 1
+        String[] fields = csvLine.split(",");
 
+        // check number of fields
+        int size = 6;
+        if (fields.length < 6) {
+            throw new IllegalArgumentException("Wrong number of fields");
+        }
+
+        String user = fields[0].trim();
+        String song = fields[1].trim();
+        String artist = fields[2].trim();
+        String genre = fields[3].trim();
+        LocalDate date = LocalDate.parse(fields[4]);
+        int seconds = Integer.parseInt(fields[5]);
+
+        Play play = new Play(user, song, artist, genre, date, seconds);
+
+        return play;
     }
 }
