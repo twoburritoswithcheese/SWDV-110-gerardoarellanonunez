@@ -3,7 +3,7 @@ package recursive;
 
 import java.util.Scanner;
 
-public class binarySearch {
+public class BinarySearch {
     // counter
     static int binaryChecks = 0;
     static int linearChecks = 0;
@@ -20,17 +20,17 @@ public class binarySearch {
         }
 
         // collect user input
-        System.out.print("Enter number a number: ");
+        System.out.print("Enter a number: ");
         int target = Integer.parseInt(sc.nextLine());
 
-        // index of target
+        // binary search
         int binaryIndex = binarySearch(numbers, target, 0, numbers.length - 1);
-        int linearIndex = linearSearch(numbers, target);
-  
         if (binaryIndex == -1) {
             System.out.println("Number not found with binay search");
         }
 
+        // linear search
+        int linearIndex = linearSearch(numbers, target);
         if (linearIndex == -1) {
             System.out.println("Number not found with linear search");
         }
@@ -84,4 +84,5 @@ public class binarySearch {
         }
         return -1;
     }
+
 }
