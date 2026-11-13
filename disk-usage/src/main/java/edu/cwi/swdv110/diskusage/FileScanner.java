@@ -134,12 +134,12 @@ public final class FileScanner {
         List<FileInfo> matches = new ArrayList<>();
 
         // Build the extension.
-        String ending = "." + ext.toLowerCase();
+        String ending = "." + ext.toLowerCase(Locale.US);
 
         // Examine every file.
         for (FileInfo file : allFiles) {
 
-            if (file.path().toLowerCase().endsWith(ending)) {
+            if (file.path().toLowerCase(Locale.US).endsWith(ending)) {
 
                 matches.add(file);
             }
@@ -165,10 +165,10 @@ public final class FileScanner {
         if (value < 1024 || unit == UNITS.length - 1) {
 
             if (unit == 0) {
-                return String.format("%.0f %s", value, UNITS[unit]);
+                return String.format(Locale.US, "%.0f %s", value, UNITS[unit]);
             }
 
-            return String.format("%.1f %s", value, UNITS[unit]);
+            return String.format(Locale.US, "%.1f %s", value, UNITS[unit]);
         }
 
         // Recursive case
