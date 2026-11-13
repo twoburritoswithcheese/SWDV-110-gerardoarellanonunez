@@ -115,7 +115,7 @@ public final class FileScanner {
         for (File child : sortedChildren(dir)) {
 
             if (child.isFile()) {
-                out.add(new Fileinfo(prefix + child.getName()), child.length());
+                out.add(new FileInfo(prefix + child.getName(), child.length()));
 
             } else if (child.isDirectory()) {
                 // Recursive case
@@ -188,11 +188,34 @@ public final class FileScanner {
      */
     public static String tree(File root, int maxDepth) {
         StringBuilder sb = new StringBuilder();
-        // TODO call the recursive helper
+        
+        tree(root, 0, maxDepth, sb);
+
         return sb.toString();
     }
 
     private static void tree(File f, int depth, int maxDepth, StringBuilder sb) {
-        // TODO – use System.lineSeparator() at the end of each line
+        // Base case: file has no children
+        String indent = "  ".repeat(depth);
+
+        String name = f.getName();
+
+        if (f.isDirectory()) {
+            name += "/";
+        }
+
+        sb.append(indent)
+        .append(name)
+        .append(" (")
+        .append(humanSize(totalSize(f)))
+        .append(")")
+        .append(System.lineSeparator());
+
+        // Recursive case
+        if (f.isDirectory() && depth < maxDepth) {
+            for (File child : sortedChildren(f)) {
+                tree(child, depth + 1, maxDepth, sb);
+            }
+        }
     }
 }
