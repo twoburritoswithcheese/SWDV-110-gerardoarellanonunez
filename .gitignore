@@ -25,3 +25,8 @@ replay_pid*
 
 # excludes target 
 contact-cleaner/target/
+
+target/
+.idea/
+.vscode/
+*.iml
