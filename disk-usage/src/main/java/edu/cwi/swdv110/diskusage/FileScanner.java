@@ -56,11 +56,12 @@ public final class FileScanner {
             return 1;
         }
 
+        // Recursive case
         int count = 0;
         for (File child : sortedChildren(f)) {
-            count += countFiles(f);
+            count += countFiles(child);
         }
-        
+
         return count;
     }
 
@@ -71,8 +72,25 @@ public final class FileScanner {
      *   otherwise                             -> 1 + the deepest child
      */
     public static int maxDepth(File f) {
-        // TODO
-        return 0;
+        // Base case
+        if (f.isFile()) { return 0;}
+
+        // check if folder is empty
+        File[] children = sortedChildren(f);
+        if (children.length == 0) { return 0;}
+
+        // Recursive case
+        int max = 0;
+
+        for (File child : sortedChildren(f)) {
+            int childDepth = maxDepth(child);
+
+            if (childDepth > max) {
+                max = childDepth;
+            }
+        }
+
+        return max + 1;
     }
 
     // ---------------- Part 2 ----------------
@@ -84,13 +102,22 @@ public final class FileScanner {
      */
     public static List<FileInfo> listAll(File root) {
         List<FileInfo> result = new ArrayList<>();
-        // TODO call collect(...) to fill result
+        
+        collect(root, "", result);
+
         return result;
     }
 
     /** Recursive helper: adds the files in dir to out. prefix is the path so far, e.g. "docs/img/". */
     private static void collect(File dir, String prefix, List<FileInfo> out) {
-        // TODO
+        
+        for (File child : sortedChildren(dir)) {
+            if (child.isFile()) {
+                out.add(new Fileinfo(prefix + child.getName()), child.length());
+            } else if (child.isDirectory()) {
+                collect(child, prefix + child.getName() + "/", out);
+            }
+        }
     }
 
     /** Files whose name ends with "." + ext (ignore case), in listAll order. */
