@@ -111,10 +111,14 @@ public final class FileScanner {
     /** Recursive helper: adds the files in dir to out. prefix is the path so far, e.g. "docs/img/". */
     private static void collect(File dir, String prefix, List<FileInfo> out) {
         
+        // Examine each child - Base Case
         for (File child : sortedChildren(dir)) {
+
             if (child.isFile()) {
                 out.add(new Fileinfo(prefix + child.getName()), child.length());
+
             } else if (child.isDirectory()) {
+                // Recursive case
                 collect(child, prefix + child.getName() + "/", out);
             }
         }
@@ -122,8 +126,26 @@ public final class FileScanner {
 
     /** Files whose name ends with "." + ext (ignore case), in listAll order. */
     public static List<FileInfo> findByExtension(File root, String ext) {
-        // TODO
-        return new ArrayList<>();
+
+        // Get every file
+        List<FileInfo> allFiles = listAll(root);
+
+        // Create a list for matching files.
+        List<FileInfo> matches = new ArrayList<>();
+
+        // Build the extension.
+        String ending = "." + ext.toLowerCase();
+
+        // Examine every file.
+        for (FileInfo file : allFiles) {
+
+            if (file.path().toLowerCase().endsWith(ending)) {
+
+                matches.add(file);
+            }
+        }
+
+        return matches;
     }
 
     /**
@@ -138,8 +160,19 @@ public final class FileScanner {
     }
 
     private static String humanSize(double value, int unit) {
-        // TODO – "%.0f %s" for bytes, "%.1f %s" for every other unit
-        return "";
+        // Base case: The value is small enough,
+        // or reached final unit.
+        if (value < 1024 || unit == UNITS.length - 1) {
+
+            if (unit == 0) {
+                return String.format("%.0f %s", value, UNITS[unit]);
+            }
+
+            return String.format("%.1f %s", value, UNITS[unit]);
+        }
+
+        // Recursive case
+        return humanSize(value / 1024, unit + 1);
     }
 
     // ---------------- Part 3 ----------------
