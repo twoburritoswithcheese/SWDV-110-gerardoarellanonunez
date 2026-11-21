@@ -79,7 +79,15 @@ public class App {
      *   "978-0-13-468599-1" -> "9780134685991"
      */
     static String cleanIsbn(String raw) {
-        return raw;
+        String isbn = raw.replace("-", "").replace(" ", "");
+
+        if (!isbn.matches("\\d{10}|\\d{13}")) {
+            throw new IllegalArgumentException(
+                "ISBN must be 10 or 13 digits"
+            );
+        }
+
+        return isbn;
     }
 
     /**
@@ -88,6 +96,36 @@ public class App {
      * New books start unread with rating 0.
      */
     private static void addBook() throws SQLException {
+        String isbn = cleanIsbn(prompt("ISBN"));
+        String title = prompt("Title");
+        String author = prompt("Author");
+
+        if (title.isBlank() || author.isBlank()) {
+            throw new IllegalArgumentException(
+                "Title and author are required."
+            );
+        }
+
+        int year = Integer.parseInt(prompt("Year"));
+
+        if (year < 1450 || year > Year.now().getValue()) {
+            throw new IllegalArgumentException(
+                "Year must be between 1450 and " + Year.now().getValue());
+        }
+
+        Book book = new Book(
+            0,
+            isbn,
+            title,
+            author,
+            year,
+            0,
+            false
+        );
+
+        int id = dao.add(book);
+
+        System.out.println("Added with id " + id);
     }
 
     /**
@@ -96,6 +134,44 @@ public class App {
      * keeps the current value. Build a new Book with the SAME id and call dao.update.
      */
     private static void editBook() throws SQLException {
+        String isbn = cleanIsbn(prompt("ISBN"));
+
+        var result = dao.findByIsbn(isbn);
+
+        if (result.isEmpty()) {
+            System.out.println("No book with that ISBN");
+            return;
+        }
+
+        Book current = result.get();
+
+        System.out.println("Press Enter to keep the current value.");
+
+        String title = prompt("New title [" + current.title() + "]");
+        if (title.isBlank()) {
+            title = current.title();
+        }
+
+        String author = prompt("New author [" + current.author() + "]");
+        if (author.isBlank()) {
+            author = current.author();
+        }
+
+        Book updated = new Book(
+            current.id(),
+            current.isbn(),
+            title,
+            author,
+            current.year(),
+            current.rating(),
+            current.read()
+        );
+
+        if (dao.update(updated)) {
+            System.out.println("Book updated.");
+        } else {
+            System.out.println("Book could not be updated.");
+        }
     }
 
     private static void print(List<Book> books) {

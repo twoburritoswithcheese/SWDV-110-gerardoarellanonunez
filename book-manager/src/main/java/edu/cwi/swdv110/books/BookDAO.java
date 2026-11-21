@@ -26,21 +26,53 @@ public class BookDAO {
 
     /** Helper: builds a Book from the CURRENT row of a ResultSet. is_read is stored as 0/1. */
     private Book toBook(ResultSet rs) throws SQLException {
-        // TODO Part 2
-        return null;
+        return new Book(
+        rs.getInt("id"),
+        rs.getString("isbn"),
+        rs.getString("title"),
+        rs.getString("author"),
+        rs.getInt("year"),
+        rs.getInt("rating"),
+        rs.getInt("is_read") == 1);
+
     }
 
     // ---------------- Part 2: reading ----------------
 
     /** All books ordered by title. */
     public List<Book> getAll() throws SQLException {
-        // TODO
-        return new ArrayList<>();
+        String sql = "SELECT * FROM books ORDER BY title";
+
+        List<Book> books = new ArrayList<>();
+
+        try (Connection conn = Database.connect(url);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                books.add(toBook(rs));
+            }
+        }
+
+        return books;
     }
 
     /** The book with this exact ISBN, or Optional.empty(). */
     public Optional<Book> findByIsbn(String isbn) throws SQLException {
-        // TODO
+        String sql = "SELECT * FROM books WHERE isbn = ?";
+
+        try (Connection conn = Database.connect(url);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, isbn);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(toBook(rs));
+                }
+            }
+        }
+
         return Optional.empty();
     }
 
@@ -50,14 +82,48 @@ public class BookDAO {
      *   ps.setString(1, "%" + term + "%");
      */
     public List<Book> search(String term) throws SQLException {
-        // TODO
-        return new ArrayList<>();
+        String sql = """
+            SELECT *
+            FROM books
+            WHERE title LIKE ? OR author LIKE ?
+            ORDER BY title
+            """;
+
+        List<Book> books = new ArrayList<>();
+
+        try (Connection conn = Database.connect(url);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            String searchTerm = "%" + term + "%";
+
+            ps.setString(1, searchTerm);
+            ps.setString(2, searchTerm);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    books.add(toBook(rs));
+                }
+            }
+        }
+
+        return books;
     }
 
     /** Books not yet read, ordered by title. */
     public List<Book> unread() throws SQLException {
-        // TODO
-        return new ArrayList<>();
+        String sql = "SELECT * FROM books WHERE is_read = 0 ORDER BY title";
+
+        List<Book> books = new ArrayList<>();
+
+        try (Connection conn = Database.connect(url);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                books.add(toBook(rs));
+            }
+        }
+        return books;
     }
 
     // ---------------- Part 3: writing ----------------
@@ -68,14 +134,56 @@ public class BookDAO {
      * A duplicate ISBN makes the database throw SQLException – let it propagate.
      */
     public int add(Book b) throws SQLException {
-        // TODO
-        return -1;
+        String sql = """
+            INSERT INTO books (isbn, title, author, year, rating, is_read)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """;
+
+        try (Connection conn = Database.connect(url);
+            PreparedStatement ps = conn.prepareStatement(
+                sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, b.isbn());
+            ps.setString(2, b.title());
+            ps.setString(3, b.author());
+            ps.setInt(4, b.year());
+            ps.setInt(5, b.rating());
+            ps.setInt(6, b.read() ? 1 : 0);
+
+            ps.executeUpdate();
+
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    return keys.getInt(1);
+                }
+            }
+        }
+
+        throw new SQLException("Could not retrieve generated book ID.");
     }
 
     /** Updates every column of the row whose id = b.id(). True if a row changed. */
     public boolean update(Book b) throws SQLException {
-        // TODO
-        return false;
+        String sql = """
+            UPDATE books
+            SET isbn = ?, title = ?, author = ?,
+                year = ?, rating = ?, is_read = ?
+            WHERE id = ?
+            """;
+
+        try (Connection conn = Database.connect(url);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, b.isbn());
+            ps.setString(2, b.title());
+            ps.setString(3, b.author());
+            ps.setInt(4, b.year());
+            ps.setInt(5, b.rating());
+            ps.setInt(6, b.read() ? 1 : 0);
+            ps.setInt(7, b.id());
+
+            return ps.executeUpdate() > 0;
+        }
     }
 
     /**
@@ -83,14 +191,37 @@ public class BookDAO {
      * IllegalArgumentException BEFORE touching the database. True if a row changed.
      */
     public boolean markRead(String isbn, int rating) throws SQLException {
-        // TODO
-        return false;
+        if (rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5.");
+        }
+
+        String sql = """
+            UPDATE books
+            SET is_read = 1, rating = ?
+            WHERE isbn = ?
+            """;
+
+        try (Connection conn = Database.connect(url);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, rating);
+            ps.setString(2, isbn);
+
+            return ps.executeUpdate() > 0;
+        }
     }
 
     /** Deletes by ISBN. True if a row was deleted. */
     public boolean delete(String isbn) throws SQLException {
-        // TODO
-        return false;
+        String sql = "DELETE FROM books WHERE isbn = ?";
+
+        try (Connection conn = Database.connect(url);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, isbn);
+
+            return ps.executeUpdate() > 0;
+        }
     }
 
     // ---------------- Part 4: reports ----------------
@@ -100,13 +231,47 @@ public class BookDAO {
      * Let SQL do the work: GROUP BY, COUNT(*), ORDER BY. Use a LinkedHashMap to keep that order.
      */
     public Map<String, Integer> countByAuthor() throws SQLException {
-        // TODO
-        return new LinkedHashMap<>();
+        String sql = """
+            SELECT author, COUNT(*) AS book_count
+            FROM books
+            GROUP BY author
+            ORDER BY book_count DESC, author ASC
+            """;
+
+        Map<String, Integer> counts = new LinkedHashMap<>();
+
+        try (Connection conn = Database.connect(url);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                counts.put(
+                    rs.getString("author"),
+                    rs.getInt("book_count")
+                );
+            }
+        }
+
+        return counts;
     }
 
     /** Average rating of RATED books (rating > 0); 0.0 if none are rated. Use SQL's AVG. */
     public double averageRating() throws SQLException {
-        // TODO
+        String sql = """
+            SELECT AVG(rating) AS average_rating
+            FROM books
+            WHERE rating > 0
+            """;
+
+        try (Connection conn = Database.connect(url);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                return rs.getDouble("average_rating");
+            }
+        }
+
         return 0.0;
     }
 }

@@ -1,0 +1,12 @@
+# Maven build output
+target/
+
+# SQLite databases
+*.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Compiled Java files
+*.class
